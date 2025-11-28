@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mom's Magic - Home Food</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+    <!-- LOGIN OVERLAY -->
+    <div id="login-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center">
+        <!-- Dark Backdrop -->
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+        
+        <div class="glass-card relative w-full max-w-md p-8 rounded-3xl animate-fade-in">
+            <div class="text-center mb-8">
+                <div class="inline-block p-3 rounded-full bg-orange-100 text-orange-600 mb-4">
+                    <i class="ph-fill ph-bowl-food text-4xl"></i>
+                </div>
+                <h1 class="font-kalam text-5xl text-gray-800 mb-2">Mom's Magic</h1>
+                <p class="text-gray-500 font-medium">Authentic homemade meals, delivered.</p>
+            </div>
+            
+            <!-- Toggle -->
+            <div class="flex bg-gray-100 p-1.5 rounded-2xl mb-8 relative">
+                <div id="tab-indicator" class="absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-white rounded-xl shadow-sm transition-all duration-300 ease-out left-1.5"></div>
+                <button type="button" onclick="switchLoginTab('user')" class="relative z-10 flex-1 py-2.5 font-bold text-sm text-gray-700 transition-colors text-center">Customer</button>
+                <button type="button" onclick="switchLoginTab('admin')" class="relative z-10 flex-1 py-2.5 font-bold text-sm text-gray-500 transition-colors text-center">Admin</button>
+            </div>
+
+            <!-- Forms -->
+            <div class="relative min-h-[200px]">
+                <form id="user-login-form" class="space-y-5 absolute inset-0 transition-all duration-300">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Full Name</label>
+                        <input type="text" id="login-name" placeholder="e.g. Rahul Sharma" class="input-modern w-full" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Email Address</label>
+                        <input type="email" id="login-email" placeholder="name@example.com" class="input-modern w-full" required>
+                    </div>
+                    <button type="submit" class="btn-primary w-full py-4 rounded-2xl font-bold text-lg mt-2">Start Eating</button>
+                </form>
+
+                <form id="admin-login-form" class="space-y-5 absolute inset-0 transition-all duration-300 opacity-0 pointer-events-none translate-x-10">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Admin Password</label>
+                        <input type="password" id="admin-pass" placeholder="••••••••" class="input-modern w-full" required>
+                    </div>
+                    <div class="p-4 bg-blue-50 text-blue-700 text-sm rounded-xl flex gap-2">
+                        <i class="ph-fill ph-info text-lg"></i>
+                        <span>Default password is <b>admin</b></span>
+                    </div>
+                    <button type="submit" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold text-lg hover:bg-black transition shadow-lg btn-lift">Access Dashboard</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTENT -->
+    <div id="app-content" class="min-h-screen hidden flex flex-col">
+        <!-- Header -->
+        <header class="sticky top-0 z-40 glass border-b border-white/20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
+                <div class="flex items-center gap-3 cursor-pointer group" onclick="showSection('kitchens')">
+                    <div class="bg-orange-100 text-orange-600 p-2 rounded-xl group-hover:scale-110 transition">
+                        <i class="ph-fill ph-bowl-food text-2xl"></i>
+                    </div>
+                    <span class="font-kalam text-2xl font-bold text-gray-800">Mom's Magic</span>
+                </div>
+                
+                <div class="flex items-center gap-3 md:gap-6">
+                    <div class="hidden md:flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
+                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                        <span id="welcome-msg" class="text-sm font-bold text-gray-600">Welcome</span>
+                    </div>
+
+                    <button onclick="window.location.href='user.html'" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-orange-100 hover:text-orange-600 transition">
+                        <i class="ph-fill ph-user text-xl"></i>
+                    </button>
+                    
+                    <button onclick="toggleCart()" class="relative w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-orange-100 hover:text-orange-600 transition">
+                        <i class="ph-fill ph-shopping-cart text-xl"></i>
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white transform scale-0 transition-transform">0</span>
+                    </button>
+                    
+                    <button onclick="doLogout()" class="md:hidden text-gray-400 hover:text-red-500 transition">
+                        <i class="ph-bold ph-sign-out text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section (Visible on Kitchens page) -->
+        <div id="hero-banner" class="relative bg-gray-900 h-64 md:h-80 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1543353071-873f17a7a088?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover opacity-60">
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-center text-white p-4">
+                <h2 class="font-kalam text-5xl md:text-6xl mb-4 drop-shadow-lg">Taste of Home</h2>
+                <p class="text-lg md:text-xl text-gray-200 max-w-xl">Handcrafted meals prepared by local home chefs with love and authentic spices.</p>
+            </div>
+        </div>
+
+        <!-- KITCHENS LIST -->
+        <section id="kitchens-section" class="max-w-7xl mx-auto px-4 py-12 flex-1 w-full">
+            <div class="flex items-end justify-between mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">Our Kitchens</h2>
+                    <p class="text-gray-500 mt-1">Select a chef to view their menu</p>
+                </div>
+            </div>
+            <div id="kitchens-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </section>
+
+        <!-- MENU SECTION -->
+        <section id="menu-section" class="max-w-7xl mx-auto px-4 py-8 hidden flex-1 w-full">
+            <button onclick="showSection('kitchens')" class="mb-8 flex items-center gap-2 text-gray-500 hover:text-orange-600 font-bold transition group w-fit">
+                <div class="bg-white p-2 rounded-full shadow-sm group-hover:shadow-md transition">
+                    <i class="ph-bold ph-arrow-left"></i>
+                </div>
+                <span>Back to Kitchens</span>
+            </button>
+            
+            <div class="flex flex-col lg:flex-row gap-8 items-start">
+                <!-- Kitchen Sidebar -->
+                <div class="w-full lg:w-80 glass-card p-6 rounded-3xl sticky top-24">
+                    <div class="relative mb-4">
+                        <img id="menu-kitchen-img" src="" class="w-full h-48 object-cover rounded-2xl shadow-md">
+                        <div class="absolute -bottom-4 right-4 bg-white px-3 py-1 rounded-full shadow-sm text-xs font-bold flex items-center gap-1 text-green-600">
+                            <i class="ph-fill ph-seal-check"></i> Verified
+                        </div>
+                    </div>
+                    <h2 id="menu-kitchen-name" class="text-2xl font-bold text-gray-800 mb-1 mt-6"></h2>
+                    <div class="flex items-center gap-1 text-yellow-400 text-sm mb-3">
+                        <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                        <span class="text-gray-400 ml-1">(5.0)</span>
+                    </div>
+                    <p id="menu-kitchen-desc" class="text-gray-500 text-sm leading-relaxed"></p>
+                </div>
+                
+                <!-- Dishes -->
+                <div class="flex-1 w-full">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">Today's Menu</h3>
+                    <div id="dishes-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Footer -->
+        <footer class="bg-white border-t border-gray-100 py-8 mt-auto">
+            <div class="max-w-7xl mx-auto px-4 text-center text-gray-400 text-sm">
+                <p>&copy; 2025 Mom's Magic. Made with ❤️ for home food.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- CART SLIDE-OVER -->
+    <div id="cart-modal" class="fixed inset-0 z-[60] hidden">
+        <div class="absolute inset-0 bg-black/20 backdrop-blur-sm transition-opacity" onclick="toggleCart()"></div>
+        <div id="cart-panel" class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col transform transition-transform translate-x-full duration-300">
+            <!-- Cart Header -->
+            <div class="p-6 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Your Cart</h2>
+                    <p class="text-sm text-gray-500">Delicious food awaits!</p>
+                </div>
+                <button onclick="toggleCart()" class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+            
+            <!-- Cart Items -->
+            <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4 bg-white"></div>
+
+            <!-- Cart Footer -->
+            <div class="p-6 border-t border-gray-100 bg-gray-50/50">
+                <div class="flex justify-between items-end mb-6">
+                    <span class="text-gray-500 font-medium">Total Amount</span>
+                    <span id="cart-total" class="text-3xl font-bold text-gray-800">₹0</span>
+                </div>
+                <button onclick="checkout()" id="checkout-btn" class="btn-primary w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span>Place Order</span>
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast">
+        <div class="bg-green-100 text-green-600 p-2 rounded-full">
+            <i id="toast-icon" class="ph-fill ph-check-circle text-xl"></i>
+        </div>
+        <span id="toast-msg" class="font-bold text-gray-700 text-sm">Notification</span>
+    </div>
+
+</body>
+</html>
